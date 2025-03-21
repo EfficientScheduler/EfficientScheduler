@@ -20,8 +20,18 @@ use anyhow::Result;
 mod framework;
 mod logger;
 
+fn wait_boot() {
+    while android_system_properties::AndroidSystemProperties::new()
+        .get("sys.boot_completed")
+        .unwrap_or_default()
+        .contains("1")
+    {
+        std::thread::sleep(std::time::Duration::from_secs(5));
+    }
+}
+
 fn main() -> Result<()> {
     logger::log_init()?;
-    println!("1");
+    framework::scheduler::Scheduler::try_start_scheduler()?;
     Ok(())
 }
