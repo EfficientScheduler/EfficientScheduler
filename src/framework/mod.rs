@@ -14,14 +14,3 @@
 //
 // You should have received a copy of the GNU General Public License along
 // with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
-
-use anyhow::Result;
-
-mod framework;
-mod logger;
-
-fn main() -> Result<()> {
-    logger::log_init()?;
-    println!("1");
-    Ok(())
-}
