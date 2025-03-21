@@ -1,0 +1,42 @@
+#  Copyright 2023-2025, [rust@localhost] $ (@3532340532)
+# 
+#  This file is part of AstraPulse.
+# 
+#  AstraPulse is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option)
+#  any later version.
+# 
+#  AstraPulse is distributed in the hope that it will be useful, but WITHOUT ANY
+#  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+#  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+#  details.
+# 
+#  You should have received a copy of the GNU General Public License along
+#  with AstraPulse. If not, see <https://www.gnu.org/licenses/>.
+
+name: Cleanup Artifacts
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Delete all artifacts via API
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARTIFACT_IDS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/artifacts" \
+            | jq '.artifacts[].id')
+          for ID in $ARTIFACT_IDS; do
+            curl -X DELETE -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/artifacts/$ID"
+            echo "Deleted Artifact ID: $ID"
+          done
