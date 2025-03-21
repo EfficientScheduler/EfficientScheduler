@@ -26,7 +26,6 @@ description = "生于生时，亡于亡刻"
 authors = ["ruu"]
 
 [dependencies]
-android_system_properties = "0.1.5"
 anyhow = "1.0.95"
 chrono = "0.4.39"
 dumpsys-rs = { git = "https://github.com/shadow3aaa/dumpsys-rs" }
@@ -34,7 +33,6 @@ flexi_logger = "0.29.8"
 frame-analyzer = "0.3.3"
 libc = "0.2.169"
 log = "0.4.25"
-once_cell = "1.20.3"
 regex = "1.11.1"
 serde = { version = "1.0.217", features = ["derive"] }
 tempfile = "3.18.0"
