@@ -15,8 +15,8 @@
 #  You should have received a copy of the GNU General Public License along
 #  with EfficientScheduler. If not, see <https:://www.gnu.org/licenses/>.
 
+on = ""
+off = ""
+
 [app]
 "bin.mt.plus" = "Powersave"
-
-[runtime]
-cpu = 6
