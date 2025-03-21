@@ -1,19 +1,19 @@
 // Copyright 2023-2025, [rust@localhost] $ (@3532340532)
 //
-// This file is part of AstraPulse.
+// This file is part of EfficientScheduler.
 //
-// AstraPulse is free software: you can redistribute it and/or modify it under
+// EfficientScheduler is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free
 // Software Foundation, either version 3 of the License, or (at your option)
 // any later version.
 //
-// AstraPulse is distributed in the hope that it will be useful, but WITHOUT ANY
+// EfficientScheduler is distributed in the hope that it will be useful, but WITHOUT ANY
 // WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 // FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 // details.
 //
 // You should have received a copy of the GNU General Public License along
-// with AstraPulse. If not, see <https://www.gnu.org/licenses/>.
+// with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
 
 use std::{
     fs::{self},
@@ -110,7 +110,7 @@ fn build(release: bool, verbose: bool) -> Result<()> {
     // fs::remove_file(temp_dir.join()).unwrap();
     file::copy(
         bin_path(release),
-        temp_dir.join("AstraPulse"),
+        temp_dir.join("EfficientScheduler"),
         &file::CopyOptions::new().overwrite(true),
     )
     .unwrap();
@@ -122,14 +122,14 @@ fn build(release: bool, verbose: bool) -> Result<()> {
     .unwrap();
 
     let build_type = if release { "release" } else { "debug" };
-    let package_path = Path::new("output").join(format!("AstraPulse-({build_type}).zip"));
+    let package_path = Path::new("output").join(format!("EfficientScheduler-({build_type}).zip"));
 
     let options: FileOptions<'_, ()> = FileOptions::default()
         .compression_method(CompressionMethod::Deflated)
         .compression_level(Some(9));
     zip_create_from_directory_with_options(&package_path, &temp_dir, |_| options).unwrap();
 
-    println!("AstraPulse编译成功: {:?}", package_path);
+    println!("EfficientScheduler编译成功: {:?}", package_path);
 
     Ok(())
 }
@@ -186,7 +186,7 @@ fn bin_path(release: bool) -> PathBuf {
     Path::new("target")
         .join("aarch64-linux-android")
         .join(if release { "release" } else { "debug" })
-        .join("AstraPulse")
+        .join("EfficientScheduler")
 }
 
 fn cargo_ndk() -> Command {
