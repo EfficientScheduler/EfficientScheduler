@@ -15,7 +15,10 @@
 // You should have received a copy of the GNU General Public License along
 // with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{time::{Duration, Instant}, sync::LazyLock};
+use std::{
+    sync::LazyLock,
+    time::{Duration, Instant},
+};
 
 use dumpsys_rs::Dumpsys;
 use regex::Regex;

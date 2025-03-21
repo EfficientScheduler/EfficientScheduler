@@ -56,7 +56,7 @@ fn check_process() {
 fn main() -> Result<()> {
     logger::log_init()?;
     log::info!("aaa");
-        log::info!("aaa");
+    log::info!("aaa");
 
     check_process();
     framework::scheduler::Scheduler::try_start_scheduler()?;

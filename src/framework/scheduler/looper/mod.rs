@@ -35,7 +35,7 @@ use crate::framework::ConfigData;
 
 use super::dump::{power::Power, topapps::TopAppsWatcher};
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum Mode {
     Powersave,
     Balance,
@@ -77,26 +77,21 @@ impl Looper {
                 if self.last.topapp.clone().unwrap_or_default() != self.topapps.topapps
                     && self.topapps.topapps == app
                 {
-                    let _ = self.try_change_mode(mode.clone());
-                    let _ = self.cpu.set_freqs(self.mode.clone());
+                    match mode.as_str() {
+                        "powersave" => self.mode = Mode::Powersave,
+                        "balance" => self.mode = Mode::Balance,
+                        "performance" => self.mode = Mode::Performance,
+                        "fast" => self.mode = Mode::Fast,
+                        _ => log::error!("无效的Mode"),
+                    }
+                    let () = self.cpu.set_freqs(self.mode);
                 }
             }
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
 
-    fn try_change_mode(&mut self, mode: String) -> Result<()> {
-        match mode.as_str() {
-            "powersave" => self.mode = Mode::Powersave,
-            "balance" => self.mode = Mode::Balance,
-            "performance" => self.mode = Mode::Performance,
-            "fast" => self.mode = Mode::Fast,
-            _ => (),
-        }
-        Ok(())
-    }
-
-    fn try_boost_run(&mut self) -> Result<()> {
+    fn try_boost_run(&self) -> Result<()> {
         let mut analyzer = Analyzer::new()?;
         analyzer.attach_app(Self::find_pid(self.topapps.topapps.as_str())? as i32)?;
         let running = Arc::new(AtomicBool::new(true));
@@ -123,7 +118,7 @@ impl Looper {
             for entry in entries.flatten() {
                 let pid_str = entry.file_name().into_string().ok().unwrap_or_default();
                 let pid = pid_str.parse::<u32>()?;
-                let cmdline_path = format!("/proc/{}/cmdline", pid);
+                let cmdline_path = format!("/proc/{pid}/cmdline");
                 if let Ok(cmdline) = std::fs::read_to_string(cmdline_path) {
                     if cmdline.trim_matches('\0').contains(package_name) {
                         return Ok(pid);

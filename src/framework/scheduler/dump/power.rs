@@ -15,7 +15,10 @@
 // You should have received a copy of the GNU General Public License along
 // with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
 
-use std::{time::{Duration, Instant}, sync::LazyLock};
+use std::{
+    sync::LazyLock,
+    time::{Duration, Instant},
+};
 
 use dumpsys_rs::Dumpsys;
 use regex::Regex;
@@ -26,7 +29,8 @@ static SCREEN_BLOCK_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"mHoldingDisplaySuspendBlocker=(true)").unwrap());
 static BRIGHTNESS_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"mScreenBrightness=(\d+)").unwrap());
-static LEGACY_SCREEN_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"mScreenOn=(true)").unwrap());
+static LEGACY_SCREEN_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"mScreenOn=(true)").unwrap());
 
 const RESET_TIME: Duration = Duration::from_secs(1);
 
@@ -71,7 +75,7 @@ impl Power {
         }
     }
 
-#[allow(clippy::pedantic)]
+    #[allow(clippy::pedantic)]
     fn parse_power(output: &str) -> bool {
         WAKE_REGEX.is_match(output)
             || SCREEN_BLOCK_REGEX.is_match(output)
@@ -84,4 +88,3 @@ impl Power {
                 .unwrap_or(false)
     }
 }
-

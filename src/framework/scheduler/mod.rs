@@ -28,7 +28,9 @@ pub struct Scheduler;
 
 impl Scheduler {
     pub fn try_start_scheduler() -> Result<()> {
-        let context = read_to_string("/data/data/com.termux/files/home/.local/share/tmoe-linux/containers/chroot/arch_arm64/home/hutao/AstraPulse/modules/config.toml")?;
+        let context = read_to_string(
+            "/data/data/com.termux/files/home/.local/share/tmoe-linux/containers/chroot/arch_arm64/home/hutao/AstraPulse/modules/config.toml",
+        )?;
         let context: ConfigData = toml::from_str(context.as_str())?;
         looper::Looper::new(context).enter_looper();
         Ok(())
