@@ -78,7 +78,7 @@ impl Looper {
                     && self.topapps.topapps == app
                 {
                     let _ = self.try_change_mode(mode.clone());
-                    let _ = self.cpu.set_freqs(self.mode);
+                    let _ = self.cpu.set_freqs(self.mode.clone());
                 }
             }
             std::thread::sleep(std::time::Duration::from_secs(1));
@@ -96,17 +96,21 @@ impl Looper {
         Ok(())
     }
 
-    fn try_boost_run(&self) -> Result<()> {
+    fn try_boost_run(&mut self) -> Result<()> {
         let mut analyzer = Analyzer::new()?;
         analyzer.attach_app(Self::find_pid(self.topapps.topapps.as_str())? as i32)?;
         let running = Arc::new(AtomicBool::new(true));
         let mut buffer = VecDeque::with_capacity(120);
         thread::spawn(move || {
+            let cpu = Cpu::new().unwrap();
             while running.load(Ordering::Acquire) {
                 if let Some((_, frametime)) = analyzer.recv() {
                     if buffer.len() >= 120 {
                         buffer.pop_back();
                         buffer.push_front(frametime);
+                    }
+                    if buffer.len() <= 10 {
+                        cpu.set_freqs(Mode::Fast);
                     }
                 }
             }
