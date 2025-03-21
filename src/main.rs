@@ -15,22 +15,22 @@
 // You should have received a copy of the GNU General Public License along
 // with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
 
+#![deny(clippy::all, clippy::pedantic)]
+#![warn(clippy::nursery)]
+#![allow(
+    clippy::module_name_repetitions,
+    clippy::cast_possible_truncation,
+    clippy::cast_sign_loss,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_wrap
+)]
+
 use std::{fs, process::exit};
 
 use anyhow::Result;
 
 mod framework;
 mod logger;
-
-fn wait_boot() {
-    while android_system_properties::AndroidSystemProperties::new()
-        .get("sys.boot_completed")
-        .unwrap_or_default()
-        .contains("1")
-    {
-        std::thread::sleep(std::time::Duration::from_secs(5));
-    }
-}
 
 fn check_process() {
     let mut count = 0;
@@ -55,7 +55,9 @@ fn check_process() {
 
 fn main() -> Result<()> {
     logger::log_init()?;
-    wait_boot();
+    log::info!("aaa");
+        log::info!("aaa");
+
     check_process();
     framework::scheduler::Scheduler::try_start_scheduler()?;
     Ok(())
