@@ -28,6 +28,7 @@
 use std::{fs, process::exit};
 
 use anyhow::Result;
+use sysinfo::{Pid, System};
 
 mod framework;
 mod logger;
@@ -53,12 +54,46 @@ fn check_process() {
     }
 }
 
+fn kill_other_process() {
+    let system = System::new_all();
+    for i in system.processes_by_name("uperf".as_ref()) {
+        let uperf = format!("{}", i.name().to_string_lossy());
+        if !uperf.is_empty() {
+            if let Some(process) = system.process(Pid::from_u32(i.pid().as_u32())) {
+                process.kill();
+            }
+        }
+    }
+    for i in system.processes_by_name("fas-rs".as_ref()) {
+        let uperf = format!("{}", i.name().to_string_lossy());
+        if !uperf.is_empty() {
+            if let Some(process) = system.process(Pid::from_u32(i.pid().as_u32())) {
+                process.kill();
+            }
+        }
+    }
+    for i in system.processes_by_name("AsoulOpt".as_ref()) {
+        let uperf = format!("{}", i.name().to_string_lossy());
+        if !uperf.is_empty() {
+            if let Some(process) = system.process(Pid::from_u32(i.pid().as_u32())) {
+                process.kill();
+            }
+        }
+    }
+    for i in system.processes_by_name("AppOpt".as_ref()) {
+        let uperf = format!("{}", i.name().to_string_lossy());
+        if !uperf.is_empty() {
+            if let Some(process) = system.process(Pid::from_u32(i.pid().as_u32())) {
+                process.kill();
+            }
+        }
+    }
+}
+
 fn main() -> Result<()> {
     logger::log_init()?;
-    log::info!("aaa");
-    log::info!("aaa");
-
     check_process();
+    kill_other_process();
     framework::scheduler::Scheduler::try_start_scheduler()?;
     Ok(())
 }
