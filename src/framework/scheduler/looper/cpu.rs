@@ -49,7 +49,11 @@ impl Cpu {
     }
 
     pub fn set_freqs(&self, mode: Mode) {
+<<<<<<< HEAD
         for (policy, path) in self.info.clone() {
+=======
+        for (_, path) in self.info.clone() {
+>>>>>>> parent of 2b4468e (fix:修复拼写错误)
             let freq_max_path = path.join("scaling_max_freq");
             let freq_min_path = path.join("scaling_mim_freq");
             let freqs = fs::read_to_string(
