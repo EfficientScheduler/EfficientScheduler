@@ -20,7 +20,7 @@ members = ["task"]
 
 [package]
 name = "EfficientScheduler"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 description = "生于生时，亡于亡刻"
 authors = ["ruu"]
