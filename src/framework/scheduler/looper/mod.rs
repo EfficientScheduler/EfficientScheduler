@@ -94,7 +94,6 @@ impl Looper {
             log::debug!("已关闭大部分系统自带功能");
         }
         let _ = self.try_boost_run();
-        self.buffer.set_uclamp();
         loop {
             self.topapps.topapp_dumper();
             self.power.power_dumper();
@@ -131,6 +130,9 @@ impl Looper {
                 }
             }
             let () = self.cpu.set_freqs(self.mode);
+            self.buffer.set_mode(self.mode);
+            self.buffer.match_uclamp();
+            self.buffer.set_uclamp();
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
