@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License along
 // with EfficientScheduler. If not, see <https://www.gnu.org/licenses/>.
 
-//mod buffer;
+mod buffer;
 mod cpu;
 
 use std::{
@@ -28,6 +28,7 @@ use std::{
 };
 
 use anyhow::Result;
+use buffer::Buffer;
 use cpu::Cpu;
 use frame_analyzer::Analyzer;
 
@@ -54,6 +55,7 @@ pub struct Looper {
     last: Last,
     cpu: Cpu,
     mode: Mode,
+    buffer: Buffer,
 }
 
 impl Looper {
@@ -64,6 +66,7 @@ impl Looper {
             config,
             cpu: Cpu::new().unwrap(),
             mode: Mode::Balance,
+            buffer: Buffer::new(),
             last: Last { topapp: None },
         }
     }
@@ -106,6 +109,7 @@ impl Looper {
                 }
             }
             let () = self.cpu.set_freqs(self.mode);
+            self.buffer.set_uclamp_topapps(self.topapps.topapps.clone().as_str());
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
