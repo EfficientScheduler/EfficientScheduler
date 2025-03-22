@@ -51,8 +51,7 @@ impl Buffer {
             },
         }
     }
-
-    fn set_uclamp(&self) {
+    pub fn set_uclamp(&self) {
         let operations = [
             (
                 "/dev/cpuctl/background/cpu.uclamp.max",
@@ -70,8 +69,14 @@ impl Buffer {
                 "/dev/cpuctl/foreground/cpu.uclamp.min",
                 self.cpuctl.fg_uclamp.min,
             ),
-            ("/dev/cpuctl/top-app/cpu.uclamp.max", &cpuctl.ta_uclamp.max),
-            ("/dev/cpuctl/top-app/cpu.uclamp.min", &cpuctl.ta_uclamp.min),
+            (
+                "/dev/cpuctl/top-app/cpu.uclamp.max",
+                self.cpuctl.ta_uclamp.max,
+            ),
+            (
+                "/dev/cpuctl/top-app/cpu.uclamp.min",
+                self.cpuctl.ta_uclamp.min,
+            ),
         ];
         for (path, value) in operations {
             if let Err(e) = fs::set_permissions(path, fs::Permissions::from_mode(0o644)) {
@@ -81,10 +86,6 @@ impl Buffer {
                 log::error!("无法写入文件 {}: {}", path, e);
             }
         }
-    }
-
-    pub fn try_set_buffer(&self, topapps: &str) {
-            self.set_uclamp(cpuctl);
     }
 }
 
