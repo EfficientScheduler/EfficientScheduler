@@ -73,19 +73,38 @@ impl Looper {
         loop {
             self.topapps.topapp_dumper();
             self.power.power_dumper();
-            for (app, mode) in self.config.app.clone() {
-                if self.last.topapp.clone().unwrap_or_default() != self.topapps.topapps
-                    && self.topapps.topapps == app
-                {
-                    match mode.as_str() {
+            if self.power.state {
+                for (app, mode) in self.config.app.clone() {
+                    if self.last.topapp.clone().unwrap_or_default() != self.topapps.topapps
+                        && self.topapps.topapps == app
+                    {
+                        match mode.as_str() {
+                            "powersave" => self.mode = Mode::Powersave,
+                            "balance" => self.mode = Mode::Balance,
+                            "performance" => self.mode = Mode::Performance,
+                            "fast" => self.mode = Mode::Fast,
+                            _ => log::error!("无效的Mode"),
+                        }
+                        let () = self.cpu.set_freqs(self.mode);
+                    }
+                    match self.config.on.as_str() {
                         "powersave" => self.mode = Mode::Powersave,
                         "balance" => self.mode = Mode::Balance,
                         "performance" => self.mode = Mode::Performance,
                         "fast" => self.mode = Mode::Fast,
                         _ => log::error!("无效的Mode"),
                     }
-                    let () = self.cpu.set_freqs(self.mode);
+                    self.cpu.set_freqs(self.mode);
                 }
+            } else {
+                match self.config.off.as_str() {
+                    "powersave" => self.mode = Mode::Powersave,
+                    "balance" => self.mode = Mode::Balance,
+                    "performance" => self.mode = Mode::Performance,
+                    "fast" => self.mode = Mode::Fast,
+                    _ => log::error!("无效的Mode"),
+                }
+                self.cpu.set_freqs(self.mode);
             }
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
