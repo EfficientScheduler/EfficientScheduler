@@ -132,7 +132,6 @@ impl Looper {
             let () = self.cpu.set_freqs(self.mode);
             self.buffer.set_mode(self.mode);
             self.buffer.match_uclamp();
-            self.buffer.set_uclamp();
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }

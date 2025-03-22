@@ -19,18 +19,39 @@
 
 use std::{fs, os::unix::fs::PermissionsExt};
 
-use serde::Deserialize;
-
 use super::Mode;
 
-#[derive(Deserialize)]
+const PRECOMPUTED: [Cpuctl; 4] = [
+    Cpuctl {
+        bg_uclamp: Uclamp { max: 10, min: 5 },
+        ta_uclamp: Uclamp { max: 20, min: 10 },
+        fg_uclamp: Uclamp { max: 25, min: 20 },
+    },
+    Cpuctl {
+        bg_uclamp: Uclamp { max: 15, min: 10 },
+        ta_uclamp: Uclamp { max: 25, min: 20 },
+        fg_uclamp: Uclamp { max: 30, min: 20 },
+    },
+    Cpuctl {
+        bg_uclamp: Uclamp { max: 40, min: 10 },
+        ta_uclamp: Uclamp { max: 40, min: 20 },
+        fg_uclamp: Uclamp { max: 60, min: 20 },
+    },
+    Cpuctl {
+        bg_uclamp: Uclamp { max: 100, min: 10 },
+        ta_uclamp: Uclamp { max: 100, min: 20 },
+        fg_uclamp: Uclamp { max: 100, min: 20 },
+    },
+];
+
+#[derive(Clone)]
 struct Cpuctl {
     bg_uclamp: Uclamp,
     ta_uclamp: Uclamp,
     fg_uclamp: Uclamp,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone)]
 struct Uclamp {
     max: usize,
     min: usize,
@@ -53,44 +74,24 @@ impl Buffer {
         }
     }
 
-    pub const fn set_mode(&mut self, mode: Mode) {
+    #[allow(clippy::nursery)]
+    pub fn set_mode(&mut self, mode: Mode) {
         self.mode = mode;
     }
 
-    pub const fn match_uclamp(&mut self) {
-        match self.mode {
-            Mode::Powersave => {
-                self.cpuctl = Cpuctl {
-                    bg_uclamp: Uclamp { max: 10, min: 5 },
-                    ta_uclamp: Uclamp { max: 20, min: 10 },
-                    fg_uclamp: Uclamp { max: 25, min: 20 },
-                };
-            }
-            Mode::Balance => {
-                self.cpuctl = Cpuctl {
-                    bg_uclamp: Uclamp { max: 15, min: 10 },
-                    ta_uclamp: Uclamp { max: 25, min: 20 },
-                    fg_uclamp: Uclamp { max: 30, min: 20 },
-                };
-            }
-            Mode::Performance => {
-                self.cpuctl = Cpuctl {
-                    bg_uclamp: Uclamp { max: 40, min: 10 },
-                    ta_uclamp: Uclamp { max: 40, min: 20 },
-                    fg_uclamp: Uclamp { max: 60, min: 20 },
-                };
-            }
-            Mode::Fast => {
-                self.cpuctl = Cpuctl {
-                    bg_uclamp: Uclamp { max: 100, min: 10 },
-                    ta_uclamp: Uclamp { max: 100, min: 20 },
-                    fg_uclamp: Uclamp { max: 100, min: 20 },
-                };
-            }
-        }
+    #[allow(clippy::nursery)]
+    pub fn match_uclamp(&mut self) {
+        let index = match self.mode {
+            Mode::Powersave => 0,
+            Mode::Balance => 1,
+            Mode::Performance => 2,
+            Mode::Fast => 3,
+        };
+        self.cpuctl = PRECOMPUTED[index].clone();
+        self.set_uclamp();
     }
 
-    pub fn set_uclamp(&self) {
+    fn set_uclamp(&self) {
         let operations = [
             (
                 "/dev/cpuctl/background/cpu.uclamp.max",
