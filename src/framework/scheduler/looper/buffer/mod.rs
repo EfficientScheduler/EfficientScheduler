@@ -24,8 +24,6 @@ use anyhow::Result;
 use libc::{MS_BIND, MS_REC, mount, umount, umount2};
 use serde::Deserialize;
 
-const TMGP: &str = include_str!("./tmgp.toml");
-
 #[derive(Deserialize)]
 struct Cpuctl {
     bg_uclamp: Uclamp,
@@ -54,23 +52,23 @@ impl Buffer {
         }
     }
 
-    fn set_uclamp(&self, cpuctl: Cpuctl) {
+    fn set_uclamp(&self) {
         let operations = [
             (
                 "/dev/cpuctl/background/cpu.uclamp.max",
-                &cpuctl.bg_uclamp.max,
+                self.cpuctl.bg_uclamp.max,
             ),
             (
                 "/dev/cpuctl/background/cpu.uclamp.min",
-                &cpuctl.bg_uclamp.min,
+                self.cpuctl.bg_uclamp.min,
             ),
             (
                 "/dev/cpuctl/foreground/cpu.uclamp.max",
-                &cpuctl.fg_uclamp.max,
+                self.cpuctl.fg_uclamp.max,
             ),
             (
                 "/dev/cpuctl/foreground/cpu.uclamp.min",
-                &cpuctl.fg_uclamp.min,
+                self.cpuctl.fg_uclamp.min,
             ),
             ("/dev/cpuctl/top-app/cpu.uclamp.max", &cpuctl.ta_uclamp.max),
             ("/dev/cpuctl/top-app/cpu.uclamp.min", &cpuctl.ta_uclamp.min),
@@ -85,11 +83,8 @@ impl Buffer {
         }
     }
 
-    pub fn set_uclamp_topapps(&self, topapps: &str) {
-        if topapps == "com.tencent.tmgp.pubgmhd" {
-            let cpuctl: Cpuctl = toml::from_str(TMGP).unwrap();
+    pub fn try_set_buffer(&self, topapps: &str) {
             self.set_uclamp(cpuctl);
-        }
     }
 }
 
