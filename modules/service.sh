@@ -20,4 +20,4 @@ MODDIR=${0%/*}
 
 sh $MODDIR/vtools/init_vtools.sh $(realpath $MODDIR/module.prop)
 
-$MODDIR/EfficientScheduler > $MODDIR/run.log
+RUST_BACKTRACE=1 nohup $MODDIR/EfficientScheduler > $MODDIR/run.log 2>&1 &
