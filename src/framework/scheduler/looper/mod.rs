@@ -20,6 +20,10 @@ mod cpu;
 
 use std::{
     collections::VecDeque,
+    ffi::CString,
+    fs,
+    os::unix::fs::PermissionsExt,
+    ptr,
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
@@ -28,9 +32,10 @@ use std::{
 };
 
 use anyhow::Result;
-use buffer::{Buffer, lock_value};
+use buffer::Buffer;
 use cpu::Cpu;
 use frame_analyzer::Analyzer;
+use libc::{MS_BIND, MS_REC, mount, umount, umount2};
 
 use crate::framework::ConfigData;
 
@@ -167,4 +172,53 @@ impl Looper {
         }
         Ok(0)
     }
+}
+
+pub fn lock_value(path: &str, value: &str) -> Result<()> {
+    let mount_path = format!("/cache/mount_mask_{value}");
+    unmount(path)?;
+    if let Err(e) = fs::set_permissions(path, fs::Permissions::from_mode(0o644)) {
+        log::error!("无法设置权限{}: {e}", path);
+    }
+    if let Err(e) = fs::write(path, value) {
+        log::error!("无法写入文件{}: {e}", path);
+    }
+    if let Err(e) = fs::set_permissions(path, fs::Permissions::from_mode(0o444)) {
+        log::error!("无法设置权限{}: {e}", path);
+    }
+    if let Err(e) = fs::write(&mount_path, value) {
+        log::error!("无法写入文件{}: {e}", mount_path);
+    }
+    mount_bind(&mount_path, path)?;
+    Ok(())
+}
+
+fn mount_bind(src_path: &str, dest_path: &str) -> Result<()> {
+    let src_path = CString::new(src_path)?;
+    let dest_path = CString::new(dest_path)?;
+
+    unsafe {
+        umount2(dest_path.as_ptr(), libc::MNT_DETACH);
+
+        if mount(
+            src_path.as_ptr().cast(),
+            dest_path.as_ptr().cast(),
+            ptr::null(),
+            MS_BIND | MS_REC,
+            ptr::null(),
+        ) != 0
+        {
+            return Err(std::io::Error::last_os_error().into());
+        }
+    }
+
+    Ok(())
+}
+
+fn unmount(file_system: &str) -> Result<()> {
+    let path = CString::new(file_system)?;
+    if unsafe { umount(path.as_ptr()) } != 0 {
+        return Err(std::io::Error::last_os_error().into());
+    }
+    Ok(())
 }
