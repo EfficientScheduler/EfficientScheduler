@@ -94,6 +94,8 @@ fn main() -> Result<()> {
     logger::log_init()?;
     check_process();
     kill_other_process();
+    let self_pid = process::id();
+    let _ = fs::write("/dev/cpuset/background/cgroup.procs", self_pid.to_string());
     framework::scheduler::Scheduler::try_start_scheduler()?;
     Ok(())
 }
