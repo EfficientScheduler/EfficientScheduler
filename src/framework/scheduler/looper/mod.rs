@@ -28,7 +28,7 @@ use std::{
 };
 
 use anyhow::Result;
-use buffer::Buffer;
+use buffer::{Buffer, lock_value};
 use cpu::Cpu;
 use frame_analyzer::Analyzer;
 
@@ -71,7 +71,22 @@ impl Looper {
         }
     }
 
+    fn disable() {
+        lock_value("/sys/module/mtk_fpsgo/parameters/perfmgr_enable", "0");
+        lock_value("/sys/module/perfmgr/parameters/perfmgr_enable", "0");
+        lock_value("/sys/module/perfmgr_policy/parameters/perfmgr_enable", "0");
+        lock_value("/sys/module/perfmgr_mtk/parameters/perfmgr_enable", "0");
+        lock_value("/sys/module/migt/parameters/glk_fbreak_enable", "0");
+        lock_value("/sys/module/migt/parameters/glk_disable", "1");
+        lock_value("/proc/game_opt/disable_cpufreq_limit", "1");
+    }
+
     pub fn enter_looper(&mut self) {
+        Self::disable();
+        #[cfg(debug_assertions)]
+        {
+            log::debug!("已关闭大部分系统自带功能");
+        }
         let _ = self.try_boost_run();
         loop {
             self.topapps.topapp_dumper();
@@ -109,7 +124,8 @@ impl Looper {
                 }
             }
             let () = self.cpu.set_freqs(self.mode);
-            self.buffer.set_uclamp_topapps(self.topapps.topapps.clone().as_str());
+            self.buffer
+                .try_set_buffer(self.topapps.topapps.clone().as_str());
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
