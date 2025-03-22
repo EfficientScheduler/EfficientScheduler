@@ -85,16 +85,16 @@ impl Looper {
                             "fast" => self.mode = Mode::Fast,
                             _ => log::error!("无效的Mode"),
                         }
-                        let () = self.cpu.set_freqs(self.mode);
+                        self.last.topapp = Some(self.topapps.topapps.clone());
+                    } else {
+                        match self.config.on.as_str() {
+                            "powersave" => self.mode = Mode::Powersave,
+                            "balance" => self.mode = Mode::Balance,
+                            "performance" => self.mode = Mode::Performance,
+                            "fast" => self.mode = Mode::Fast,
+                            _ => log::error!("无效的Mode"),
+                        }
                     }
-                    match self.config.on.as_str() {
-                        "powersave" => self.mode = Mode::Powersave,
-                        "balance" => self.mode = Mode::Balance,
-                        "performance" => self.mode = Mode::Performance,
-                        "fast" => self.mode = Mode::Fast,
-                        _ => log::error!("无效的Mode"),
-                    }
-                    self.cpu.set_freqs(self.mode);
                 }
             } else {
                 match self.config.off.as_str() {
@@ -104,8 +104,8 @@ impl Looper {
                     "fast" => self.mode = Mode::Fast,
                     _ => log::error!("无效的Mode"),
                 }
-                self.cpu.set_freqs(self.mode);
             }
+            let () = self.cpu.set_freqs(self.mode);
             std::thread::sleep(std::time::Duration::from_secs(1));
         }
     }
