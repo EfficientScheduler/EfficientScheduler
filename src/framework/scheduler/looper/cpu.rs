@@ -49,7 +49,7 @@ impl Cpu {
     }
 
     pub fn set_freqs(&self, mode: Mode) {
-        for (policy, path) in self.info.clone() {
+        for (_, path) in self.info.clone() {
             let freq_max_path = path.join("scaling_max_freq");
             let freq_min_path = path.join("scaling_mim_freq");
             let freqs = fs::read_to_string(
