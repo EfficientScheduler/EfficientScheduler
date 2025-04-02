@@ -35,7 +35,7 @@ libc = "0.2.169"
 log = "0.4.25"
 regex = "1.11.1"
 serde = { version = "1.0.217", features = ["derive"] }
-sysinfo = "0.33.1"
+sysinfo = "0.34.2"
 tempfile = "3.18.0"
 toml = "0.8.20"
 
